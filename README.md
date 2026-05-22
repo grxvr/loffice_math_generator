@@ -1,7 +1,7 @@
 Made by student for students
 
 # Usage
-```
+```python
 import random
 from output import Output, MathParser
 o = Output(globals(),work_number=1)
