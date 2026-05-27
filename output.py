@@ -388,6 +388,12 @@ class Output:
             n = 1
             for arg in args:
               if arg.startswith('!'): n = int(arg.strip('!'))
+            if not expr.startswith(('"',"'")):
+              text = self.parser.val_by_name(expr,False)
+              assert isinstance(text,dict)
+              text = list(text.values())[0]
+              self.lines.append(self.Line(self.LT.HEAD,text,n))
+              continue
             self.lines.append(self.Line(self.LT.HEAD,strip_quotes(expr),n))
           case 'p' | 'para':
             if not expr.startswith(('"',"'")):
