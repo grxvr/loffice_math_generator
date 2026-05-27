@@ -62,7 +62,7 @@ class MathParser:
         imag_exsists = abs(v.imag) > self.eps
         return "{}{}{}".format(
           self.fmt(v.real, d) if real_exsists else '',
-          ("+" if v.imag >= 0 else "-") if imag_exsists else '',
+          (("+" if real_exsists else '') if v.imag >= 0 else "-") if imag_exsists else '',
           ('j'+self.fmt(abs(v.imag), d)) if imag_exsists else ''
         )
       def geom(v, d):
@@ -175,7 +175,7 @@ class MathParser:
         nt = self.toks[idx+1]
         pt = self.toks[idx-1]
         if isinstance(v,complex) and (nt.value in ['*','**'] or pt.value in ['*','**', '-']):
-          if v.real != 0 and v.imag != 0:
+          if not((v.real > 0 and v.imag == 0) or (v.imag > 0 and v.real == 0)): 
             var = '(' + var + ')'
         if isinstance(v, (int,float)) and pt.type == self.T.OP:
           if v < 0: var = '(' + var + ')'
