@@ -41,7 +41,7 @@ class MathParser:
         +f" + j{'(' if any([op in a[1] for op in ['-', '+', 'cdot', 'over']]) else ''}"
       +f"{a[1]}" 
         +f"{')' if any([op in a[1] for op in ['-', '+', 'cdot', 'over']]) else ''}"
-    )
+    ),
 
   }
 
@@ -59,10 +59,11 @@ class MathParser:
     if isinstance(v, complex):
       def algb(v, d):
         real_exsists = abs(v.real) > self.eps
-        return "{} {} j{}".format(
+        imag_exsists = abs(v.imag) > self.eps
+        return "{}{}{}".format(
           self.fmt(v.real, d) if real_exsists else '',
-          ("+" if v.imag >= 0 else "-") if real_exsists else '',
-          self.fmt(abs(v.imag), d)
+          ("+" if v.imag >= 0 else "-") if imag_exsists else '',
+          ('j'+self.fmt(abs(v.imag), d)) if imag_exsists else ''
         )
       def geom(v, d):
         deg = math.atan(v.imag / v.real) * (180 / math.pi)
@@ -100,7 +101,6 @@ class MathParser:
         r"(?P<NUM>\d+(?:\.\d+)?(?:[eE][+-]?\d+)?j?)"
         r"|(?P<LIT>[a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*)"
         r"|(?P<OP>\*\*|[+\-*/])"
-        r"|(?P<LLP>(?<!\w)\(\()|(?P<LRP>\)\)(?!\w))"
         r"|(?P<LP>\()|(?P<RP>\))|(?P<EQ>=)|(?P<COMMA>,)|(?P<SKIP>\s+)"
     )
     raw = [(m.lastgroup, m.group()) for m in re.compile(regex).finditer(text) if m.lastgroup != "SKIP"]
@@ -174,8 +174,9 @@ class MathParser:
         var = self.fmt(v,self.d)
         nt = self.toks[idx+1]
         pt = self.toks[idx-1]
-        if isinstance(v,complex) and (nt.value in ['*','**'] or pt.value in ['*','**']):
-          var = '(' + var + ')'
+        if isinstance(v,complex) and (nt.value in ['*','**'] or pt.value in ['*','**', '-']):
+          if v.real != 0 and v.imag != 0:
+            var = '(' + var + ')'
         if isinstance(v, (int,float)) and pt.type == self.T.OP:
           if v < 0: var = '(' + var + ')'
         values.append(var)
@@ -440,6 +441,7 @@ class Output:
                       if k in self.parser.__dict__.keys():
                         try:
                           v = float(v)
+                          if v == int(v): v = int(v)
                         except ValueError:
                           continue
                         self.parser.__dict__.update({k:v})
