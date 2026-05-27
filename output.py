@@ -1,6 +1,6 @@
 # vim:fileencoding=utf-8:foldmethod=indent
 
-import re, sys, os, math, numbers
+import re, sys, os, math, numbers, math, cmath
 from enum import Enum
 from dataclasses import dataclass
 from typing import Any, Callable, Self
@@ -66,7 +66,7 @@ class MathParser:
           ('j'+self.fmt(abs(v.imag), d)) if imag_exsists else ''
         )
       def geom(v, d):
-        deg = math.atan(v.imag / v.real) * (180 / math.pi)
+        deg = math.degrees(cmath.phase(v))
         return "{}e^{{{}j{}°}}".format(
           self.fmt(math.sqrt(v.real**2 + v.imag**2), d),
           "" if deg >= 0 else "-",
